@@ -104,7 +104,7 @@ bool FPGAControl::build() {
       tables.emplace(name.c_str(), table);
 
       // populate map <Action, Table> with annotated name
-      for (auto a : *table->getActionList()->actionList) {
+      for (auto a : table->getActionList()->actionList) {
         auto path = a->getPath();
         auto decl = refMap->getDeclaration(path, true);
         if (decl->is<IR::P4Action>()) {
@@ -121,7 +121,7 @@ bool FPGAControl::build() {
         continue;
       }
 
-      for (auto key : *keys->keyElements) {
+      for (auto key : keys->keyElements) {
         auto element = key->to<IR::KeyElement>();
         if (element->expression->is<IR::Member>()) {
           auto m = element->expression->to<IR::Member>();
@@ -316,7 +316,7 @@ void FPGAControl::emitConnection(BSVProgram & bsv) {
     builder->append_line("mkConnection(toClient(%s_req_ff, %s_rsp_ff), %s.prev_control_state);", name, name, name);
 
     int idx = 0;
-    for (auto a: *table->getActionList()->actionList) {
+    for (auto a: table->getActionList()->actionList) {
       auto path = a->getPath();
       auto decl = refMap->getDeclaration(path, true);
       if (decl->is<IR::P4Action>()) {

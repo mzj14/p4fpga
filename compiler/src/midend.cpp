@@ -130,4 +130,4 @@ const IR::P4Program* MidEnd::run(const FPGAOptions& options, const IR::P4Program
     return program;
 }
 
-}  // namespace FPGA
+} // namespace FPGA

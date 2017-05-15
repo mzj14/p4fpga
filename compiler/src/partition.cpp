@@ -40,14 +40,14 @@ const IR::Node* DoPartition::preorder(IR::BlockStatement* statement) {
     if (p->name == "ingress" || p->name == "egress") {
       start_partition = true;
       n_table = 0;
-      for (auto s : *statement->components) {
+      for (auto s : statement->components) {
         visit(s);
       }
       start_partition = false;
     }
   } else {
     if (start_partition) {
-      for (auto s : *statement->components) {
+      for (auto s : statement->components) {
         visit(s);
       }
     }

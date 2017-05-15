@@ -51,7 +51,7 @@ bool SelectStmtCodeGen::preorder(const IR::ListExpression* expr) {
   const IR::Type_Tuple* tpl = widthTuple->to<IR::Type_Tuple>();
   CHECK_NULL(tpl);
   // select -> (Bit#(n) key1, Bit#(n) key2) and list (key1, key2)
-  for (auto h : MakeZipRange(*tpl->components, *expr->components)) {
+  for (auto h : MakeZipRange(tpl->components, expr->components)) {
     auto w = h.get<0>();
     auto k = h.get<1>();
     const IR::Member* member = k->to<IR::Member>();
@@ -280,7 +280,7 @@ class ExtractFuncCodeGen : public Inspector {
 
 bool ExtractFuncCodeGen::preorder(const IR::ListExpression* expr) {
   // select -> list (key1, key2)
-  for (auto h : *expr->components) {
+  for (auto h : expr->components) {
     const IR::Member* member = h->to<IR::Member>();
     // header->member corresponding IR.
     // <Vector<Expression>>(1558), size=1
@@ -397,7 +397,7 @@ bool ExtractFuncCodeGen::preorder (const IR::MethodCallExpression* expr) {
     const IR::Member* member = instName->to<IR::Member>();
     cstring header = member->member.toString();
     builder->append_line("let %s = extract_%s(truncate(data));", header, typeName->toString());
-    for (auto stmt : *state->components) {
+    for (auto stmt : state->components) {
       if (stmt->is<IR::AssignmentStatement>()) {
         visit(stmt);
       }
@@ -514,7 +514,7 @@ class RegCodeGen : public Inspector {
 };
 
 bool RegCodeGen::preorder(const IR::Type_Struct* strt) {
-  for (auto f : *strt->fields) {
+  for (auto f : strt->fields) {
     auto type = typeMap->getType(f);
     auto type_name = CamelCase(type->getP4Type()->toString());
     auto name = f->toString();
@@ -539,7 +539,7 @@ class InitStateCodeGen : public Inspector {
 bool InitStateCodeGen::preorder(const IR::ParserState* state) {
   if (state->name.toString() == "start") {
     // NOTE: assume start state is actually called 'start'
-    if (state->components->size() == 0) {
+    if (state->components.size() == 0) {
       if (state->selectExpression->is<IR::PathExpression>()) {
         auto expr = state->selectExpression->to<IR::PathExpression>();
         auto inst = refMap->getDeclaration(expr->path, true);
@@ -569,7 +569,7 @@ void FPGAParser::emitEnums(BSVProgram & bsv) {
   builder->append_line("typedef enum {");
   builder->incr_indent();
   std::vector<cstring> state_vec;
-  for (auto state: *parserBlock->container->states) {
+  for (auto state: parserBlock->container->states) {
     state_vec.push_back(state->name.toString());
   }
   for (auto s : state_vec) {
@@ -595,7 +595,7 @@ void FPGAParser::emitStructs(BSVProgram & bsv) {
   const IR::Type_Struct* ir_struct = type->to<IR::Type_Struct>();
   CHECK_NULL(ir_struct);
 
-  for (auto f : *ir_struct->fields) {
+  for (auto f : ir_struct->fields) {
     auto field_t = typeMap->getType(f);
     if (field_t->is<IR::Type_Header>()) {
       field_t->apply(visitor);
@@ -613,7 +613,7 @@ void FPGAParser::emitStructs(BSVProgram & bsv) {
   const IR::Type_Struct* meta_struct = meta->to<IR::Type_Struct>();
   CHECK_NULL(meta_struct);
 
-  for (auto f : *meta_struct->fields) {
+  for (auto f : meta_struct->fields) {
     auto field_t = typeMap->getType(f);
     if (field_t->is<IR::Type_Struct>()) {
       field_t->apply(visitor);
@@ -623,7 +623,7 @@ void FPGAParser::emitStructs(BSVProgram & bsv) {
 
 // convert every field in struct headers to its origial header type
 void FPGAParser::emitAcceptedHeaders(BSVProgram & bsv, const IR::Type_Struct* headers) {
-  for (auto h : *headers->fields) {
+  for (auto h : headers->fields) {
     auto node = h->getNode();
     auto type = typeMap->getType(node, true);
     auto name = h->name.toString();
@@ -651,7 +651,7 @@ void FPGAParser::emitAcceptedHeaders(BSVProgram & bsv, const IR::Type_Struct* he
 // When used in parser, there is no need to create an out_ff.
 //
 void FPGAParser::emitUserMetadata(BSVProgram & bsv, const IR::Type_Struct* metadata) {
-  for (auto h : *metadata->fields) {
+  for (auto h : metadata->fields) {
     cstring header = h->toString();
     builder->append_line("meta.meta.%s = rg_%s;", header, header);
   }
@@ -703,13 +703,13 @@ void FPGAParser::emit(BSVProgram & bsv) {
   emitStructs(bsv);
 
   // translate select statement to bluespec function
-  for (auto state: *parserBlock->container->states) {
+  for (auto state: parserBlock->container->states) {
     SelectStmtCodeGen selectCodeGen(state, typeMap, builder);
     state->selectExpression->apply(selectCodeGen);
   }
 
   builder->append_line("`ifdef PARSER_FUNCTION");
-  for (auto state: *parserBlock->container->states) {
+  for (auto state: parserBlock->container->states) {
     InitStateCodeGen initStateCodeGen(state, refMap, builder);
     state->apply(initStateCodeGen);
   }
@@ -717,7 +717,7 @@ void FPGAParser::emit(BSVProgram & bsv) {
 
   builder->append_line("`ifdef PARSER_STRUCT");
   int num_rules = 0;
-  for (auto state: *parserBlock->container->states) {
+  for (auto state: parserBlock->container->states) {
     ExtractLenCodeGen extractLenCodeGen(state, typeMap, builder);
     state->apply(extractLenCodeGen);
   }
@@ -729,7 +729,7 @@ void FPGAParser::emit(BSVProgram & bsv) {
   builder->append_line("action");
   builder->append_line("case (state) matches");
   builder->incr_indent();
-  for (auto state: *parserBlock->container->states) {
+  for (auto state: parserBlock->container->states) {
     cstring this_state = state->name.toString();
     builder->append_line("State%s : begin", CamelCase(this_state));
     builder->incr_indent();
@@ -746,7 +746,7 @@ void FPGAParser::emit(BSVProgram & bsv) {
   builder->append_line("`endif");
 
   builder->append_line("`ifdef PARSER_RULES");
-  for (auto state: *parserBlock->container->states) {
+  for (auto state: parserBlock->container->states) {
     ExtractStmtCodeGen extractCodeGen(state, typeMap, builder, num_rules);
     state->apply(extractCodeGen);
   }
@@ -760,13 +760,13 @@ void FPGAParser::emit(BSVProgram & bsv) {
   // emit state variables
   // PulseWire for state transition
   builder->append_line("`ifdef PARSER_STATE");
-  for (auto state: *parserBlock->container->states) {
+  for (auto state: parserBlock->container->states) {
     PulseWireCodeGen pulsewireCodeGen(state, typeMap, builder);
     state->selectExpression->apply(pulsewireCodeGen);
   }
 
   // DFIFOF for exporting extracted header
-  for (auto state: *parserBlock->container->states) {
+  for (auto state: parserBlock->container->states) {
     DfifoCodeGen dfifoCodeGen(state, typeMap, builder);
     state->apply(dfifoCodeGen);
   }

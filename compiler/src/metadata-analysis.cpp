@@ -43,7 +43,7 @@ inline void decr_indent(Graph & graph) {
 
 bool DoMetadataAnalysis::preorder(const IR::TableBlock* table) {
   // LOG1("Table " << table);
-  for (auto act : *table->container->getActionList()->actionList) {
+  for (auto act : table->container->getActionList()->actionList) {
     auto element = act->to<IR::ActionListElement>();
     if (element->expression->is<IR::PathExpression>()) {
       //LOG1("Path " << element->expression->to<IR::PathExpression>());
@@ -59,7 +59,7 @@ bool DoMetadataAnalysis::preorder(const IR::TableBlock* table) {
   auto keys = table->container->getKey();
   if (keys == nullptr) return false;
 
-  for (auto key : *keys->keyElements) {
+  for (auto key : keys->keyElements) {
     auto element = key->to<IR::KeyElement>();
     if (element->expression->is<IR::Member>()) {
       auto m = element->expression->to<IR::Member>();

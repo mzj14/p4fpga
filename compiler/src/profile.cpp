@@ -4,7 +4,7 @@ namespace P4 {
 
 bool DoResourceEstimation::preorder(const IR::P4Control* control) {
   if (control->name == "ingress" || control->name == "egress") {
-    for (auto s : *control->controlLocals) {
+    for (auto s : control->controlLocals) {
       visit(s);
     }
   }
@@ -13,9 +13,9 @@ bool DoResourceEstimation::preorder(const IR::P4Control* control) {
 
 bool DoResourceEstimation::preorder(const IR::P4Table* table) {
   int size_ = 0;
-  for (auto p : *table->properties->properties) {
-    if (p->is<IR::TableProperty>()) {
-      auto pp = p->to<IR::TableProperty>();
+  for (auto p : table->properties->properties) {
+    if (p->is<IR::Property>()) {
+      auto pp = p->to<IR::Property>();
       if (pp->name == "size") {
         auto expr = pp->value->to<IR::ExpressionValue>();
         if (expr->expression->is<IR::Constant>()) {
@@ -39,14 +39,14 @@ bool DoResourceEstimation::preorder(const IR::P4Table* table) {
 }
 
 bool DoResourceEstimation::preorder(const IR::ActionList* action) {
-  width_bit += std::ceil(log2f(action->actionList->size()));
+  width_bit += std::ceil(log2f(action->actionList.size()));
   return false;
 }
 
 bool DoResourceEstimation::preorder(const IR::Key* key) {
   int width_ = 0;
   cstring type_ = "exact";
-  for (auto k : *key->keyElements) {
+  for (auto k : key->keyElements) {
     auto e = k->to<IR::KeyElement>();
     if (e == nullptr) continue;
 

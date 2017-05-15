@@ -35,7 +35,7 @@ bool StructCodeGen::preorder(const IR::Type_Header* hdr) {
   builder->append_line("typedef struct {");
   builder->incr_indent();
   int header_width = 0;
-  for (auto f : *hdr->fields) {
+  for (auto f : hdr->fields) {
     if (f->type->is<IR::Type_Bits>()) {
       int size = f->type->to<IR::Type_Bits>()->size;
       cstring name = f->name.toString();
@@ -68,7 +68,7 @@ bool StructCodeGen::preorder(const IR::Type_Struct* hdr) {
   builder->append_line("typedef struct {");
   builder->incr_indent();
   int header_width = 0;
-  for (auto f : *hdr->fields) {
+  for (auto f : hdr->fields) {
     if (f->type->is<IR::Type_Bits>()) {
       int size = f->type->to<IR::Type_Bits>()->size;
       cstring name = f->name.toString();

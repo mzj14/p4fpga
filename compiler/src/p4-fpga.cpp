@@ -99,7 +99,7 @@ int main(int argc, char *const argv[]) {
 
     // NOTE: reason that we do parseP4File here is because
     // parseP4File() cannot be called twice in current impl
-    auto program = parseP4File(options);
+    auto program = P4::parseP4File(options);
     if (::errorCount() > 0)
         exit(1);
 

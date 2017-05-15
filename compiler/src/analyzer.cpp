@@ -191,7 +191,7 @@ class CFGBuilder : public Inspector {
         return false;
     }
     bool preorder(const IR::BlockStatement* statement) override {
-        for (auto s : *statement->components) {
+        for (auto s : statement->components) {
             // NOTE: ignore AssignmentStatement, insert it to 'after' map will
             // break cfg.
             if (s->is<IR::AssignmentStatement>())

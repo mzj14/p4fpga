@@ -64,7 +64,7 @@ class TableParamExtractor : public Inspector {
     auto k = control->actions.find(methodcall->method->toString());
     if (k != control->actions.end()) {
       auto params = k->second->parameters;
-      for (auto p : *params->parameters) {
+      for (auto p : params->parameters) {
         auto type = p->type->to<IR::Type_Bits>();
         param_map[p->name.toString()] = type;
       }
@@ -86,7 +86,7 @@ class ActionParamPrinter : public Inspector {
     if (k != control->actions.end()) {
       auto params = k->second->parameters;
       param_vec.clear();
-      for (auto param : *params->parameters) {
+      for (auto param : params->parameters) {
         auto p = param->to<IR::Parameter>();
         if (p == nullptr) continue;
         cstring name = p->name.toString();

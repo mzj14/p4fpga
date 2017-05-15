@@ -20,7 +20,7 @@ void Test::ir_toplevel() {
     LOG1("hdr " << hdr);
     auto headersType = typeMap->getType(hdr->getNode(), true);
     auto ht = headersType->to<IR::Type_Struct>();
-    for (auto f : *ht->fields) {
+    for (auto f : ht->fields) {
         LOG1("f " << f);
         LOG1("ftype " << typeMap->getType(f->type, true));
     }
@@ -32,18 +32,18 @@ void Test::ir_toplevel() {
     auto mdType = typeMap->getType(userMetadataParam, true);
     LOG1("mdu " << mdType);
     auto mt = mdType->to<IR::Type_Struct>();
-    for (auto m : *mt->fields) {
+    for (auto m : mt->fields) {
         LOG1("m: " << m->type);
         auto mdt = typeMap->getType(m->type, true);
         LOG1("mdt " << mdt);
         auto m_field = mdt->to<IR::Type_Struct>();
         CHECK_NULL(m_field);
-        for (auto md : *m_field->fields) {
+        for (auto md : m_field->fields) {
             LOG1("mdd: " << md);
         }
     }
 
-    for (auto s : *parser->states) {
+    for (auto s : parser->states) {
         auto sType = s->selectExpression;
         auto aType = s->annotations;
         if (s->name == IR::ParserState::accept || s->name == IR::ParserState::reject) {
@@ -63,7 +63,7 @@ void Test::ir_toplevel() {
         }
 
         LOG1("annotation: " << aType);
-        for (auto c : *s->components) {
+        for (auto c : s->components) {
             LOG1("c: " << c);
             if (c->is<IR::AssignmentStatement>()) {
                 const IR::Expression *l, *r;

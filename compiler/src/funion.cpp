@@ -28,8 +28,8 @@ bool UnionCodeGen::preorder(const IR::MethodCallExpression* expr) {
   auto k = control->actions.find(expr->method->toString());
   if (k != control->actions.end()) {
     const IR::ParameterList* params = k->second->parameters;
-    if (params->parameters->size() != 0) {
-      for (auto p : *params->parameters) {
+    if (params->parameters.size() != 0) {
+      for (auto p : params->parameters) {
         int size = p->type->width_bits();
         cstring name = p->name.toString();
         // NOTE: only deal with Bit#(128) ipv4_address

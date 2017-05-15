@@ -96,7 +96,7 @@ void FPGAProgram::emitBuiltinMetadata(CodeBuilder* builder) {
   const IR::Type_Struct* stdmeta = typeMap->getType(parser->stdMetadata)->to<IR::Type_Struct>();
   builder->append_line("typedef struct {");
   builder->incr_indent();
-  for (auto h : *stdmeta->fields) {
+  for (auto h : stdmeta->fields) {
     auto type = typeMap->getType(h);
     auto name = h->name.toString();
     builder->append_format("Maybe#(Bit#(%d)) %s;", type->width_bits(), name);
@@ -133,7 +133,7 @@ void FPGAProgram::emitMetadata(CodeBuilder* builder) {
   // Metadata declared by user.
   const IR::Type_Struct* usermeta = typeMap->getType(parser->userMetadata)->to<IR::Type_Struct>();
   CHECK_NULL(usermeta);
-  for (auto h : *usermeta->fields) {
+  for (auto h : usermeta->fields) {
     auto type = typeMap->getType(h);
     auto name = h->name.toString();
     if (type->is<IR::Type_Struct>()) {
